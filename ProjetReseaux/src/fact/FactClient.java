@@ -2,12 +2,15 @@ package fact;
 
 public class FactClient {
 	
-	public static void main(String[] args) {
-		String serverAdress;
-		int serverPort;
-		
-		serverAdress = args[0];
-		serverPort = Integer.parseInt(args[1]);
+	private String serverAddress;
+	private int serverPort;
+	
+	public FactClient(String address, int port) {
+		this.serverAddress = address;
+		this.serverPort = port;
 	}
-
+	
+	public static void main(String[] args) {
+		FactClient client = new FactClient(args[0], Integer.parseInt(args[1]));
+	}
 }
