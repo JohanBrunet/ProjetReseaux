@@ -7,6 +7,7 @@ public class FactClient {
 		int serverPort;
 		
 		serverAdress = args[0];
+		serverPort = Integer.parseInt(args[1]);
 	}
 
 }
