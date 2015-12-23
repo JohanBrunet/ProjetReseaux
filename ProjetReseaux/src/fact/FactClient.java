@@ -10,7 +10,12 @@ public class FactClient {
 		this.serverPort = port;
 	}
 	
+	public void run() {
+		
+	}
+	
 	public static void main(String[] args) {
 		FactClient client = new FactClient(args[0], Integer.parseInt(args[1]));
+		client.run();
 	}
 }
