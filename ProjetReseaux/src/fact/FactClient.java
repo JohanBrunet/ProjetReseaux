@@ -58,8 +58,8 @@ public class FactClient {
 
 	public static void main(String argv[]) {
 		try {
-			FactClient c = new FactClient();
-			c.run();
+			FactClient client = new FactClient();
+			client.run();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
