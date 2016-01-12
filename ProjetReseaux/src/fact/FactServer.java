@@ -20,16 +20,16 @@ public class FactServer {
 
 	public class ClientThread extends Thread {
 
-		Socket socket;
-		InputStream sInput;
-		OutputStream sOutput;
-		String name;
+		private Socket socket;
+		private InputStream sInput;
+		private OutputStream sOutput;
+		private String name;
 
 		public ClientThread(Socket socket, String name) {
 			try {
 				this.socket = socket;
-				sOutput = socket.getOutputStream();
-				sInput  = socket.getInputStream();
+				this.sOutput = this.socket.getOutputStream();
+				this.sInput  = this.socket.getInputStream();
 				this.name = name;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -38,12 +38,12 @@ public class FactServer {
 
 		@SuppressWarnings("resource")
 		public void run() {
-			Scanner sc = new Scanner(sInput);
+			Scanner sc = new Scanner(this.sInput);
 			while (true) {
 				if (sc.hasNext()) {
 					String msg = sc.nextLine();
-					System.out.println(name + ": " + msg);
-					broadcast(name + ": " + msg);
+					System.out.println(this.name + ": " + msg);
+					broadcast(this.name + ": " + msg);
 				}				
 			}
 		}
@@ -51,16 +51,16 @@ public class FactServer {
 
 	// Server part
 
-	ArrayList<ClientThread> socks = new ArrayList<ClientThread>();
-	int port;
-	int num = 0;
+	private ArrayList<ClientThread> socks = new ArrayList<ClientThread>();
+	private int port;
+	private int num = 0;
 
 	public FactServer(int port) {
 		this.port = port;
 	}
 
 	public synchronized void broadcast(String msg) {
-		for (ClientThread e : socks) {
+		for (ClientThread e : this.socks) {
 			PrintStream output = new PrintStream(e.sOutput);
 			output.println(msg);
 		}
@@ -69,23 +69,48 @@ public class FactServer {
 	@SuppressWarnings("resource")
 	public void run() {
 		try {
-			ServerSocket sServer = new ServerSocket(port);
+			ServerSocket sServer = new ServerSocket(this.port);
 			while (true) {
-				Socket s = sServer.accept();
-				ClientThread c = new ClientThread(s, "Thread " + num);;
-				System.out.println("Connection of client " + num);
-				num++;
-				socks.add(c);
-				c.start();
+				Socket socket = sServer.accept();
+				ClientThread client = new ClientThread(socket, "Thread " + this.num);;
+				System.out.println("Connection of client " + this.num);
+				this.num++;
+				this.socks.add(client);
+				client.start();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
+	/**
+	 * Méthode permettant le calcul d'une factorielle.
+	 * @param n
+	 * 		La valeur n de laquelle on doit calculer la factorielle.
+	 * @return La factorielle de n.
+	 * @throws Exception 
+	 */
+	public int fact(int n) throws Exception {
+		if (n < 0) {
+			throw new Exception("Nombre négatif !");
+		}
+		else if (n != 0) {
+			int fact = 1;
+			int i = 1;
+			while (i <= n) {
+				fact = fact*i;
+				i++;
+			}
+			return fact;
+		}
+		else {
+			return 1;
+		}
+	}
+
 	public static void main(String [] argv) {
-		FactServer c = new FactServer (50000);
-		c.run();
+		FactServer client = new FactServer (50000);
+		client.run();
 	}
 }
 
