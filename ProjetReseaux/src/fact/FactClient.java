@@ -33,23 +33,29 @@ public class FactClient {
 		}
 	}
 
+	private String address;
+	private int port;
+	private int fact;
+	
+	public FactClient(String address, int port, int fact) {
+		this.address = address;
+		this.port = port;
+		this.fact = fact;
+	}
+	
 	public void run() {
 		InetAddress address;
 		Socket socket;
 		Listen listen;
-		Scanner scanner;
-		String msg;
 
 		try {
-			address = InetAddress.getLocalHost();
-			socket = new Socket(address, 50000);
+			address = InetAddress.getByName(this.address);
+			socket = new Socket(address, this.port);
 			listen = new Listen(socket);
 			listen.start();
 			PrintStream output = new PrintStream(socket.getOutputStream());
-			scanner = new Scanner(System.in);
 			while (true) {
-				msg = scanner.nextLine();
-				output.println(msg);
+				output.println(this.fact);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -58,7 +64,7 @@ public class FactClient {
 
 	public static void main(String argv[]) {
 		try {
-			FactClient client = new FactClient();
+			FactClient client = new FactClient(argv[0], Integer.parseInt(argv[1]), Integer.parseInt(argv[2]));
 			client.run();
 		} catch (Exception e) {
 			e.printStackTrace();
