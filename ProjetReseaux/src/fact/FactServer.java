@@ -11,7 +11,7 @@ import java.util.Scanner;
 /**
  * Classe permettant de créer un serveur pour le calcul de factorielle
  * 
- * @author Johan Brunet
+ * @author Johan Brunet, Quentin Bouygues
  *
  */
 public class FactServer {

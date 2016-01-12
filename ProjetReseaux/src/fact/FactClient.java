@@ -10,7 +10,7 @@ import java.util.Scanner;
 /**
  * Classe permettant de créer un client pour la demande de calcul de factorielle au serveur
  * 
- * @author Johan Brunet
+ * @author Johan Brunet, Quentin Bouygues
  *
  */
 public class FactClient {
