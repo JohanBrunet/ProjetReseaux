@@ -7,7 +7,6 @@ import org.apache.commons.collections.map.LRUMap;
 /**
 * @author Crunchify.com
 */
- 
 public class MemoryCache<K, T> {
  
     private long timeToLive;
@@ -22,18 +21,18 @@ public class MemoryCache<K, T> {
         }
     }
  
-    public MemoryCache(long TimeToLive, final long TimerInterval, int maxItems) {
-        this.timeToLive = TimeToLive * 1000;
+    public MemoryCache(long timeToLive, final long timerInterval, int maxItems) {
+        this.timeToLive = timeToLive * 1000;
  
         this.cacheMap = new LRUMap(maxItems);
  
-        if (timeToLive > 0 && TimerInterval > 0) {
+        if (this.timeToLive > 0 && timerInterval > 0) {
  
             Thread t = new Thread(new Runnable() {
                 public void run() {
                     while (true) {
                         try {
-                            Thread.sleep(TimerInterval * 1000);
+                            Thread.sleep(timerInterval * 1000);
                         } catch (InterruptedException ex) {
                         }
                         cleanup();
@@ -55,7 +54,7 @@ public class MemoryCache<K, T> {
     @SuppressWarnings("unchecked")
     public T get(K key) {
         synchronized (this.cacheMap) {
-            CrunchifyCacheObject c = (CrunchifyCacheObject) cacheMap.get(key);
+            CrunchifyCacheObject c = (CrunchifyCacheObject) this.cacheMap.get(key);
  
             if (c == null)
                 return null;
@@ -68,13 +67,13 @@ public class MemoryCache<K, T> {
  
     public void remove(K key) {
         synchronized (this.cacheMap) {
-            cacheMap.remove(key);
+            this.cacheMap.remove(key);
         }
     }
  
     public int size() {
         synchronized (this.cacheMap) {
-            return cacheMap.size();
+            return this.cacheMap.size();
         }
     }
  
@@ -85,9 +84,9 @@ public class MemoryCache<K, T> {
         ArrayList<K> deleteKey = null;
  
         synchronized (this.cacheMap) {
-            MapIterator itr = cacheMap.mapIterator();
+            MapIterator itr = this.cacheMap.mapIterator();
  
-            deleteKey = new ArrayList<K>((cacheMap.size() / 2) + 1);
+            deleteKey = new ArrayList<K>((this.cacheMap.size() / 2) + 1);
             K key = null;
             CrunchifyCacheObject c = null;
  
@@ -95,7 +94,7 @@ public class MemoryCache<K, T> {
                 key = (K) itr.next();
                 c = (CrunchifyCacheObject) itr.getValue();
  
-                if (c != null && (now > (timeToLive + c.lastAccessed))) {
+                if (c != null && (now > (this.timeToLive + c.lastAccessed))) {
                     deleteKey.add(key);
                 }
             }
@@ -103,7 +102,7 @@ public class MemoryCache<K, T> {
  
         for (K key : deleteKey) {
             synchronized (this.cacheMap) {
-                cacheMap.remove(key);
+                this.cacheMap.remove(key);
             }
  
             Thread.yield();

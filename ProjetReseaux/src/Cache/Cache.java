@@ -3,22 +3,21 @@ package Cache;
 /**
 * @author Crunchify.com
 */
- 
 public class Cache {
  
     public static void main(String[] args) throws InterruptedException {
  
-        Cache crunchifyCache = new Cache();
+        Cache cache = new Cache();
  
-        System.out.println("\n\n==========Test1: crunchifyTestAddRemoveObjects ==========");
-        crunchifyCache.AddRemoveObjects();
-        System.out.println("\n\n==========Test2: crunchifyTestExpiredCacheObjects ==========");
-        crunchifyCache.ExpiredCacheObjects();
-        System.out.println("\n\n==========Test3: crunchifyTestObjectsCleanupTime ==========");
-        crunchifyCache.ObjectsCleanupTime();
+        System.out.println("\n\n==========Test1: TestAddRemoveObjects ==========");
+        cache.addRemoveObjects();
+        System.out.println("\n\n==========Test2: TestExpiredCacheObjects ==========");
+        cache.expiredCacheObjects();
+        System.out.println("\n\n==========Test3: TestObjectsCleanupTime ==========");
+        cache.objectsCleanupTime();
     }
  
-    private void AddRemoveObjects() {
+    private void addRemoveObjects() {
  
         // Test with timeToLiveInSeconds = 200 seconds
         // timerIntervalInSeconds = 500 seconds
@@ -39,10 +38,9 @@ public class Cache {
         cache.put("Twitter", "Twitter");
         cache.put("SAP", "SAP");
         System.out.println("Two objects Added but reached maxItems.. cache.size(): " + cache.size());
- 
     }
  
-    private void ExpiredCacheObjects() throws InterruptedException {
+    private void expiredCacheObjects() throws InterruptedException {
  
         // Test with timeToLiveInSeconds = 1 second
         // timerIntervalInSeconds = 1 second
@@ -56,10 +54,9 @@ public class Cache {
         Thread.sleep(3000);
  
         System.out.println("Two objects are added but reached timeToLive. cache.size(): " + cache.size());
- 
     }
  
-    private void ObjectsCleanupTime() throws InterruptedException {
+    private void objectsCleanupTime() throws InterruptedException {
         int size = 500000;
  
         // Test with timeToLiveInSeconds = 100 seconds
@@ -80,6 +77,5 @@ public class Cache {
         double finish = (double) (System.currentTimeMillis() - start) / 1000.0;
  
         System.out.println("Cleanup times for " + size + " objects are " + finish + " s");
- 
     }
 }
