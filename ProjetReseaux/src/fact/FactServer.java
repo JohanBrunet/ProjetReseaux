@@ -8,6 +8,12 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * Classe permettant de créer un serveur pour le calcul de factorielle
+ * 
+ * @author Johan Brunet
+ *
+ */
 public class FactServer {
 
 	// Client part

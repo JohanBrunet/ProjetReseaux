@@ -7,6 +7,12 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
 
+/**
+ * Classe permettant de créer un client pour la demande de calcul de factorielle au serveur
+ * 
+ * @author Johan Brunet
+ *
+ */
 public class FactClient {
 
 	public class Listen extends Thread {
