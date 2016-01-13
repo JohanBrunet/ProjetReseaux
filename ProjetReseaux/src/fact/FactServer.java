@@ -112,6 +112,8 @@ public class FactServer {
 		FactServer client = new FactServer (50000);
 		client.run();
 	}
+	
+	//TODO implémentation du cache sous forme de HashTable
 }
 
 

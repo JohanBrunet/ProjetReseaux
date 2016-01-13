@@ -1,4 +1,4 @@
-package Cache;
+package cacheCheat;
  
 /**
 * @author Crunchify.com
@@ -31,7 +31,7 @@ public class Cache {
         cache.put("IBM", "IBM");
         cache.put("Facebook", "Facebook");
  
-        System.out.println("6 Cache Object Added.. cache.size(): " + cache.size());
+        System.out.println("6 cacheCheat Object Added.. cache.size(): " + cache.size());
         cache.remove("IBM");
         System.out.println("One object removed.. cache.size(): " + cache.size());
  
@@ -50,7 +50,7 @@ public class Cache {
         cache.put("eBay", "eBay");
         cache.put("Paypal", "Paypal");
         // Adding 3 seconds sleep.. Both above objects will be removed from
-        // Cache because of timeToLiveInSeconds value
+        // cacheCheat because of timeToLiveInSeconds value
         Thread.sleep(3000);
  
         System.out.println("Two objects are added but reached timeToLive. cache.size(): " + cache.size());
