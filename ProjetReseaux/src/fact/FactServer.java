@@ -1,11 +1,12 @@
 package fact;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Scanner;
 
 /**
@@ -16,54 +17,11 @@ import java.util.Scanner;
  */
 public class FactServer {
 
-	// Client part
-
-	public class ClientThread extends Thread {
-
-		private Socket socket;
-		private InputStream sInput;
-		private OutputStream sOutput;
-		private String name;
-
-		public ClientThread(Socket socket, String name) {
-			try {
-				this.socket = socket;
-				this.sOutput = this.socket.getOutputStream();
-				this.sInput  = this.socket.getInputStream();
-				this.name = name;
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-
-		@SuppressWarnings("resource")
-		public void run() {
-			Scanner sc = new Scanner(this.sInput);
-			while (true) {
-				if (sc.hasNext()) {
-					String msg = sc.nextLine();
-					System.out.println(this.name + ": " + msg);
-					broadcast(this.name + ": " + msg);
-				}				
-			}
-		}
-	}
-
-	// Server part
-
-	private ArrayList<ClientThread> socks = new ArrayList<ClientThread>();
+	private static Hashtable<Integer, Integer> cache = new Hashtable<Integer, Integer>();
 	private int port;
-	private int num = 0;
 
 	public FactServer(int port) {
 		this.port = port;
-	}
-
-	public synchronized void broadcast(String msg) {
-		for (ClientThread e : this.socks) {
-			PrintStream output = new PrintStream(e.sOutput);
-			output.println(msg);
-		}
 	}
 
 	@SuppressWarnings("resource")
@@ -72,39 +30,11 @@ public class FactServer {
 			ServerSocket sServer = new ServerSocket(this.port);
 			while (true) {
 				Socket socket = sServer.accept();
-				ClientThread client = new ClientThread(socket, "Thread " + this.num);;
-				System.out.println("Connection of client " + this.num);
-				this.num++;
-				this.socks.add(client);
+				FactClientThread client = new FactClientThread(socket, this.port);
 				client.start();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Méthode permettant le calcul d'une factorielle.
-	 * @param n
-	 * 		La valeur n de laquelle on doit calculer la factorielle.
-	 * @return La factorielle de n.
-	 * @throws Exception 
-	 */
-	public int fact(int n) throws Exception {
-		if (n < 0) {
-			throw new Exception("Nombre négatif !");
-		}
-		else if (n != 0) {
-			int fact = 1;
-			int i = 1;
-			while (i <= n) {
-				fact = fact*i;
-				i++;
-			}
-			return fact;
-		}
-		else {
-			return 1;
 		}
 	}
 
@@ -113,7 +43,45 @@ public class FactServer {
 		client.run();
 	}
 	
-	//TODO implémentation du cache sous forme de HashTable
+	synchronized private static void addToCache(Integer key, Integer value) {
+		cache.put(key, value);
+	}
+	
+	synchronized private static Integer getInCache(Integer key) {
+		return cache.get(key);
+	}
+	
+	synchronized private static boolean isInCache(Integer key) {
+		if (cache.containsKey(key)) {
+			return true;
+		}
+		return false;
+	}
+}
+
+class FactClientThread extends Thread {
+
+	private Socket socket;
+	private int port;
+
+	public FactClientThread(Socket socket, int port) {
+		this.socket = socket;
+		this.port = port;
+	}
+
+	public void run() {
+		Scanner sc;
+		try {
+			sc = new Scanner(this.socket.getInputStream());
+			while (true) {
+				if (sc.hasNext()) {
+					//TODO création nouveau client pour calcul de fact(n-1)
+				}				
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }
 
 
