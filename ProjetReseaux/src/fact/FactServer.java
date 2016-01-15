@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Scanner;
 
@@ -17,8 +16,10 @@ import java.util.Scanner;
  */
 public class FactServer {
 
-	private static Hashtable<Integer, Integer> cache = new Hashtable<Integer, Integer>();
+	private Hashtable<Integer, Integer> cache = new Hashtable<Integer, Integer>();
 	private int port;
+	private InputStream input;
+	private OutputStream output;
 
 	public FactServer(int port) {
 		this.port = port;
@@ -43,15 +44,15 @@ public class FactServer {
 		client.run();
 	}
 	
-	synchronized private static void addToCache(Integer key, Integer value) {
+	synchronized private void addToCache(Integer key, Integer value) {
 		cache.put(key, value);
 	}
 	
-	synchronized private static Integer getInCache(Integer key) {
+	synchronized private Integer getInCache(Integer key) {
 		return cache.get(key);
 	}
 	
-	synchronized private static boolean isInCache(Integer key) {
+	synchronized private boolean isInCache(Integer key) {
 		if (cache.containsKey(key)) {
 			return true;
 		}
@@ -64,6 +65,14 @@ class FactClientThread extends Thread {
 	private Socket socket;
 	private int port;
 
+	/**
+	 * Constructeur de la classe FactClientThread.
+	 * Permet d'initialiser le socket et le port servant à la connexion.
+	 * @param socket
+	 * 		Le socket sur lequel se connecter.
+	 * @param port
+	 * 		Le numéro du port sur lequel on se connecte.
+	 */
 	public FactClientThread(Socket socket, int port) {
 		this.socket = socket;
 		this.port = port;
@@ -75,7 +84,8 @@ class FactClientThread extends Thread {
 			sc = new Scanner(this.socket.getInputStream());
 			while (true) {
 				if (sc.hasNext()) {
-					//TODO création nouveau client pour calcul de fact(n-1)
+					int factTmp = sc.nextInt();
+					
 				}				
 			}
 		} catch (IOException e) {
