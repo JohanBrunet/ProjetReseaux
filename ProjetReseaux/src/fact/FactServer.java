@@ -16,13 +16,15 @@ import java.util.Scanner;
  */
 public class FactServer {
 
-	private Hashtable<Integer, Integer> cache = new Hashtable<Integer, Integer>();
+	private Hashtable<Integer, Integer> cache;
 	private int port;
 	private InputStream input;
 	private OutputStream output;
 
 	public FactServer(int port) {
 		this.port = port;
+		cache = new Hashtable<Integer, Integer>();
+		cache.put(0, 1);
 	}
 
 	@SuppressWarnings("resource")
@@ -31,8 +33,8 @@ public class FactServer {
 			ServerSocket sServer = new ServerSocket(this.port);
 			while (true) {
 				Socket socket = sServer.accept();
-				FactClientThread client = new FactClientThread(socket, this.port);
-				client.start();
+				FactClientThread clientFactice = new FactClientThread(socket, this.port);
+				clientFactice.start();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -84,7 +86,6 @@ class FactClientThread extends Thread {
 			sc = new Scanner(this.socket.getInputStream());
 			while (true) {
 				if (sc.hasNext()) {
-					int factTmp = sc.nextInt();
 					
 				}				
 			}
