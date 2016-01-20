@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Scanner;
 
 import fib.FibClient;
 
@@ -15,7 +16,7 @@ public class FibClient {
 	public FibClient(String address, int port, int fib) {
 		this.address = address;
 		this.port = port;
-		this.fib = fib;
+		this.fib = -1;
 	}
 	
 	public void askFact() {
@@ -25,6 +26,14 @@ public class FibClient {
 		try {
 			address = InetAddress.getByName(this.address);
 			socket = new Socket(address, this.port);
+			System.out.println("Entrez le nombre dont vous voulez la factorielle :\n");
+			Scanner sc = new Scanner(System.in);
+			if(sc.hasNext()) {
+				do {
+					System.out.println("Le nombre doit etre un entier naturel ! \n");
+					this.fib = Integer.parseInt(sc.nextLine());
+				} while(this.fib < 0 || this.fib%1 != 0);
+			}
 			PrintStream output = new PrintStream(socket.getOutputStream());
 			while (true) {
 				output.println(this.fib);
