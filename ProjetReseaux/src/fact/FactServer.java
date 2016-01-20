@@ -30,7 +30,7 @@ public class FactServer {
 	}
 
 	@SuppressWarnings("resource")
-	public void run() {
+	public void computeFact() {
 		try {
 			ServerSocket sServer = new ServerSocket(this.port);
 			Socket socket = sServer.accept();
@@ -51,8 +51,8 @@ public class FactServer {
 	}
 
 	public static void main(String [] argv) {
-		FactServer client = new FactServer (50000);
-		client.run();
+		FactServer server = new FactServer (50000);
+		server.computeFact();
 	}
 	
 	synchronized private void addToCache(Integer key, Integer value) {
