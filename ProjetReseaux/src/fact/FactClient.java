@@ -47,9 +47,9 @@ public class FactClient {
 		}
 	}
 
-	public static void main(String argv[]) {
+	public static void main(String[] args) {
 		try {
-			FactClient client = new FactClient(argv[0], Integer.parseInt(argv[1]));
+			FactClient client = new FactClient(args[0], Integer.parseInt(args[1]));
 			client.askFact();
 		} catch (Exception e) {
 			e.printStackTrace();

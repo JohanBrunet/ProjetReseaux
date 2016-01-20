@@ -9,7 +9,7 @@ import java.util.Hashtable;
 import java.util.Scanner;
 
 /**
- * Classe permettant de créer un serveur pour le calcul de factorielle
+ * Classe permettant de créer un serveur pour le calcul d'une factorielle.
  * 
  * @author Johan Brunet, Quentin Bouygues
  *
@@ -23,12 +23,28 @@ public class FactServer {
 	private int valueToCompute;
 	private int computedValue;
 
+	/**
+	 * Constructeur du serveur.
+	 * Initialise le port de connexion et le cache.
+	 * La valeur 1 associée à fact(0) est initialisée dans le cache à la création du serveur.
+	 * 
+	 * @param port
+	 * 		Le port utilisé pour la connexion.
+	 */
 	public FactServer(int port) {
 		this.port = port;
 		cache = new Hashtable<Integer, Integer>();
 		cache.put(0, 1);
 	}
 
+	/**
+	 * Méthode permettant de calculer la factorielle demandée par le client.
+	 * <ul> Deux méthodes de calcul :
+	 * 		<li> Le calcul demandé est dans le cache, on récupère la valeur associée et on la renvoie </li>
+	 * 		<li> Le calcul demandé n'est pas dans le cache : on le calcul par création successive de clients factices 
+	 * 			(ils demandent à chaque fois fact(n-1) </li>
+	 * </ul>
+	 */
 	@SuppressWarnings("resource")
 	public void computeFact() {
 		try {
@@ -50,19 +66,43 @@ public class FactServer {
 		}
 	}
 
-	public static void main(String [] argv) {
-		FactServer server = new FactServer (50000);
+	/**
+	 * Création du serveur.
+	 * @param argv
+	 * 		Les arguments de la ligne de commande.
+	 */
+	public static void main(String[] args) {
+		FactServer server = new FactServer (Integer.parseInt(args[0]));
 		server.computeFact();
 	}
-	
+
+	/**
+	 * Ajout d'une paire (clé,valeur) dans le cache.
+	 * @param key
+	 * 		Le nombre dont on a calculé la factorielle.
+	 * @param value
+	 * 		La valeur de la factorielle.
+	 */
 	synchronized private void addToCache(Integer key, Integer value) {
 		cache.put(key, value);
 	}
-	
+
+	/**
+	 * Obtenir la valeur associée à une clé (la valeur de la factorielle du nombre donné).
+	 * @param key
+	 * 		Le nombre dont on veut la factorielle.
+	 * @return La factorielle du nombre passé en paramètre.
+	 */
 	synchronized private Integer getInCache(Integer key) {
 		return cache.get(key);
 	}
-	
+
+	/**
+	 * Vérifier si le nombre demandé est déjà présent dans le cache (pour ne pas refaire le calcul.
+	 * @param key
+	 * 		Le nombre à chercher dans le cache.
+	 * @return true si le nombre est présent dans le cache, false sinon.
+	 */
 	synchronized private boolean isInCache(Integer key) {
 		if (cache.containsKey(key)) {
 			return true;
@@ -95,7 +135,7 @@ class FactClientThread extends Thread {
 			sc = new Scanner(this.socket.getInputStream());
 			while (true) {
 				if (sc.hasNext()) {
-					
+
 				}				
 			}
 		} catch (IOException e) {
