@@ -21,7 +21,7 @@ public class FactClient {
 	public FactClient(String address, int port) {
 		this.address = address;
 		this.port = port;
-		this.fact = 0;
+		this.fact = -1;
 	}
 	
 	public void askFact() {
@@ -33,7 +33,10 @@ public class FactClient {
 			System.out.println("Entrez le nombre dont vous voulez la factorielle :\n");
 			Scanner sc = new Scanner(System.in);
 			if(sc.hasNext()) {
-				this.fact = Integer.parseInt(sc.nextLine());
+				do {
+					System.out.println("Le nombre doit etre un entier naturel ! \n");
+					this.fact = Integer.parseInt(sc.nextLine());
+				} while(this.fact < 0 || this.fact%1 != 0);
 			}
 			PrintStream output = new PrintStream(socket.getOutputStream());
 			while (true) {
