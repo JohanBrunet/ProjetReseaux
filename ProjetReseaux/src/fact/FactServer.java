@@ -20,6 +20,8 @@ public class FactServer {
 	private int port;
 	private InputStream input;
 	private OutputStream output;
+	private int valueToCompute;
+	private int computedValue;
 
 	public FactServer(int port) {
 		this.port = port;
@@ -31,10 +33,17 @@ public class FactServer {
 	public void run() {
 		try {
 			ServerSocket sServer = new ServerSocket(this.port);
-			while (true) {
-				Socket socket = sServer.accept();
-				FactClientThread clientFactice = new FactClientThread(socket, this.port);
-				clientFactice.start();
+			Socket socket = sServer.accept();
+			Scanner scan = new Scanner(socket.getInputStream());
+			while (scan.hasNext()) {
+				this.valueToCompute = Integer.parseInt(scan.nextLine());
+				if (isInCache(this.valueToCompute)) {
+					this.computedValue = getInCache(this.valueToCompute);
+				}
+				else {
+					FactClientThread clientFactice = new FactClientThread(socket, this.port);
+					clientFactice.run();
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
