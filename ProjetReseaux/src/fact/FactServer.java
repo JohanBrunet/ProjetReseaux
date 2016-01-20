@@ -103,5 +103,3 @@ class FactClientThread extends Thread {
 		}
 	}
 }
-
-
