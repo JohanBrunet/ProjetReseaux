@@ -16,7 +16,7 @@ public class FibClient {
 	public FibClient(String address, int port, int fib) {
 		this.address = address;
 		this.port = port;
-		this.fib = -1;
+		this.fib = fib;
 	}
 	
 	public void askFact() {
@@ -42,10 +42,10 @@ public class FibClient {
 			e.printStackTrace();
 		}
 	}
-
+	
 	public static void main(String argv[]) {
 		try {
-			FibClient client = new FibClient(argv[0], Integer.parseInt(argv[1]), Integer.parseInt(argv[2]));
+			FibClient client = new FibClient(argv[0], Integer.parseInt(argv[1]), -1);
 			client.askFact();
 		} catch (Exception e) {
 			e.printStackTrace();
