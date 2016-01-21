@@ -24,6 +24,7 @@ public class FactClient {
 		this.fact = fact;
 	}
 
+	@SuppressWarnings("resource")
 	public int askFact() {
 		InetAddress address;
 		Socket socket;

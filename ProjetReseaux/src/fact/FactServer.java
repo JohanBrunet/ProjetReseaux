@@ -1,6 +1,5 @@
 package fact;
 
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -17,7 +16,6 @@ public class FactServer {
 
 	private static Hashtable<Integer, Integer> cache;
 	private int port;
-	private int valueToCompute;
 
 	/**
 	 * Constructeur du serveur.
@@ -126,6 +124,7 @@ class FactClientThread extends Thread {
 		this.socket = socket;
 	}
 
+	@SuppressWarnings("resource")
 	public void run() {
 		try {
 			Scanner scan= new Scanner(this.socket.getInputStream());
