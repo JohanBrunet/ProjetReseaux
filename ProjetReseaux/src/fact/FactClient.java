@@ -17,13 +17,13 @@ public class FactClient {
 	private String address;
 	private int port;
 	private int fact;
-	
+
 	public FactClient(String address, int port, int fact) {
 		this.address = address;
 		this.port = port;
 		this.fact = fact;
 	}
-	
+
 	public int askFact() {
 		InetAddress address;
 		Socket socket;

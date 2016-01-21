@@ -109,9 +109,10 @@ class FactClientThread extends Thread {
 
 	private Socket socket;
 	private int port;
-	private OutputStream output;
+	private PrintStream output;
 	private int fact;
 	private int computedValue;
+	private int valueToCompute;
 
 	/**
 	 * Constructeur de la classe FactClientThread.
@@ -129,18 +130,19 @@ class FactClientThread extends Thread {
 		try {
 			Scanner scan= new Scanner(this.socket.getInputStream());
 			while (scan.hasNext()) {
-				this.fact = Integer.parseInt(scan.nextLine());
-				if (FactServer.isInCache(this.fact)) {
-					this.computedValue = FactServer.getInCache(this.fact);
+				this.valueToCompute = Integer.parseInt(scan.nextLine());
+				if (FactServer.isInCache(this.valueToCompute)) {
+					this.computedValue = FactServer.getInCache(this.valueToCompute);
 				}
 				else {
 					FactClient clientFactice = new FactClient(socket.getInetAddress().toString(), this.port, this.fact-1);
-					clientFactice.askFact();
+					this.fact = clientFactice.askFact();
 				}
+				this.computedValue = this.computedValue * this.fact;
 			}
-			FactServer.addToCache(this.fact, this.computedValue);
-			this.output = socket.getOutputStream();
-			this.output.write(this.computedValue);
+			FactServer.addToCache(this.valueToCompute, this.computedValue);
+			this.output = new PrintStream(socket.getOutputStream());
+			this.output.println(this.computedValue);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
