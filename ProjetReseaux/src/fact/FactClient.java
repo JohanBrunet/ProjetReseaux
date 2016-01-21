@@ -18,10 +18,10 @@ public class FactClient {
 	private int port;
 	private int fact;
 	
-	public FactClient(String address, int port) {
+	public FactClient(String address, int port, int fact) {
 		this.address = address;
 		this.port = port;
-		this.fact = -1;
+		this.fact = fact;
 	}
 	
 	public void askFact() {
@@ -49,7 +49,7 @@ public class FactClient {
 
 	public static void main(String[] args) {
 		try {
-			FactClient client = new FactClient(args[0], Integer.parseInt(args[1]));
+			FactClient client = new FactClient(args[0], Integer.parseInt(args[1]), -1);
 			client.askFact();
 		} catch (Exception e) {
 			e.printStackTrace();

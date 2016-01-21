@@ -1,7 +1,5 @@
 package fact;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -18,7 +16,6 @@ public class FactServer {
 
 	private Hashtable<Integer, Integer> cache;
 	private int port;
-	private InputStream input;
 	private OutputStream output;
 	private int valueToCompute;
 	private int computedValue;
@@ -54,10 +51,10 @@ public class FactServer {
 			while (scan.hasNext()) {
 				this.valueToCompute = Integer.parseInt(scan.nextLine());
 				if (isInCache(this.valueToCompute)) {
-					this.computedValue = getInCache(this.valueToCompute);
+					this.computedValue = this.computedValue*getInCache(this.valueToCompute);
 				}
 				else {
-					FactClientThread clientFactice = new FactClientThread(socket, this.port);
+					FactClientThread clientFactice = new FactClientThread(socket, this.port, this.valueToCompute-1);
 					clientFactice.run();
 				}
 			}
@@ -111,10 +108,16 @@ public class FactServer {
 	}
 }
 
+/**
+ * Thread client
+ * @author Johan Brunet
+ *
+ */
 class FactClientThread extends Thread {
 
 	private Socket socket;
 	private int port;
+	private int fact;
 
 	/**
 	 * Constructeur de la classe FactClientThread.
@@ -124,21 +127,17 @@ class FactClientThread extends Thread {
 	 * @param port
 	 * 		Le numéro du port sur lequel on se connecte.
 	 */
-	public FactClientThread(Socket socket, int port) {
+	public FactClientThread(Socket socket, int port, int fact) {
 		this.socket = socket;
 		this.port = port;
+		this.fact = fact;
 	}
 
 	public void run() {
-		Scanner sc;
 		try {
-			sc = new Scanner(this.socket.getInputStream());
-			while (true) {
-				if (sc.hasNext()) {
-
-				}				
-			}
-		} catch (IOException e) {
+			FactClient client = new FactClient(this.socket.getInetAddress().toString(), this.port, this.fact);
+			client.askFact();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
