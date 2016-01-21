@@ -16,6 +16,7 @@ public class FactServer {
 
 	private Hashtable<Integer, Integer> cache;
 	private int port;
+	
 	private OutputStream output;
 	private int valueToCompute;
 	private int computedValue;
@@ -47,8 +48,10 @@ public class FactServer {
 		try {
 			ServerSocket sServer = new ServerSocket(this.port);
 			Socket socket = sServer.accept();
-			Scanner scan = new Scanner(socket.getInputStream());
+			Scanner scan= new Scanner(socket.getInputStream());
 			while (scan.hasNext()) {
+				socket = sServer.accept();
+				scan = new Scanner(socket.getInputStream());
 				this.valueToCompute = Integer.parseInt(scan.nextLine());
 				if (isInCache(this.valueToCompute)) {
 					this.computedValue = this.computedValue*getInCache(this.valueToCompute);
@@ -57,7 +60,11 @@ public class FactServer {
 					FactClientThread clientFactice = new FactClientThread(socket, this.port, this.valueToCompute-1);
 					clientFactice.run();
 				}
+				this.computedValue = this.computedValue * this.valueToCompute;
 			}
+			addToCache(this.valueToCompute, this.computedValue);
+			this.output = socket.getOutputStream();
+			this.output.write(this.computedValue);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
