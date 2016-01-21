@@ -1,6 +1,7 @@
 package fact;
 
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Hashtable;
@@ -14,12 +15,9 @@ import java.util.Scanner;
  */
 public class FactServer {
 
-	private Hashtable<Integer, Integer> cache;
+	private static Hashtable<Integer, Integer> cache;
 	private int port;
-	
-	private OutputStream output;
 	private int valueToCompute;
-	private int computedValue;
 
 	/**
 	 * Constructeur du serveur.
@@ -47,24 +45,11 @@ public class FactServer {
 	public void computeFact() {
 		try {
 			ServerSocket sServer = new ServerSocket(this.port);
-			Socket socket = sServer.accept();
-			Scanner scan= new Scanner(socket.getInputStream());
-			while (scan.hasNext()) {
-				socket = sServer.accept();
-				scan = new Scanner(socket.getInputStream());
-				this.valueToCompute = Integer.parseInt(scan.nextLine());
-				if (isInCache(this.valueToCompute)) {
-					this.computedValue = this.computedValue*getInCache(this.valueToCompute);
-				}
-				else {
-					FactClientThread clientFactice = new FactClientThread(socket, this.port, this.valueToCompute-1);
-					clientFactice.run();
-				}
-				this.computedValue = this.computedValue * this.valueToCompute;
+			while (true) {
+				Socket socket = sServer.accept();
+				FactClientThread threadClient = new FactClientThread(socket);
+				threadClient.run();
 			}
-			addToCache(this.valueToCompute, this.computedValue);
-			this.output = socket.getOutputStream();
-			this.output.write(this.computedValue);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -87,7 +72,7 @@ public class FactServer {
 	 * @param value
 	 * 		La valeur de la factorielle.
 	 */
-	synchronized private void addToCache(Integer key, Integer value) {
+	synchronized static void addToCache(Integer key, Integer value) {
 		cache.put(key, value);
 	}
 
@@ -97,7 +82,7 @@ public class FactServer {
 	 * 		Le nombre dont on veut la factorielle.
 	 * @return La factorielle du nombre passé en paramètre.
 	 */
-	synchronized private Integer getInCache(Integer key) {
+	synchronized static Integer getInCache(Integer key) {
 		return cache.get(key);
 	}
 
@@ -107,7 +92,7 @@ public class FactServer {
 	 * 		Le nombre à chercher dans le cache.
 	 * @return true si le nombre est présent dans le cache, false sinon.
 	 */
-	synchronized private boolean isInCache(Integer key) {
+	synchronized static boolean isInCache(Integer key) {
 		if (cache.containsKey(key)) {
 			return true;
 		}
@@ -124,7 +109,9 @@ class FactClientThread extends Thread {
 
 	private Socket socket;
 	private int port;
+	private OutputStream output;
 	private int fact;
+	private int computedValue;
 
 	/**
 	 * Constructeur de la classe FactClientThread.
@@ -134,16 +121,26 @@ class FactClientThread extends Thread {
 	 * @param port
 	 * 		Le numéro du port sur lequel on se connecte.
 	 */
-	public FactClientThread(Socket socket, int port, int fact) {
+	public FactClientThread(Socket socket) {
 		this.socket = socket;
-		this.port = port;
-		this.fact = fact;
 	}
 
 	public void run() {
 		try {
-			FactClient client = new FactClient(this.socket.getInetAddress().toString(), this.port, this.fact);
-			client.askFact();
+			Scanner scan= new Scanner(this.socket.getInputStream());
+			while (scan.hasNext()) {
+				this.fact = Integer.parseInt(scan.nextLine());
+				if (FactServer.isInCache(this.fact)) {
+					this.computedValue = FactServer.getInCache(this.fact);
+				}
+				else {
+					FactClient clientFactice = new FactClient(socket.getInetAddress().toString(), this.port, this.fact-1);
+					clientFactice.askFact();
+				}
+			}
+			FactServer.addToCache(this.fact, this.computedValue);
+			this.output = socket.getOutputStream();
+			this.output.write(this.computedValue);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

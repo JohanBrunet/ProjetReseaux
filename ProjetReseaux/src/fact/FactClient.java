@@ -24,7 +24,7 @@ public class FactClient {
 		this.fact = fact;
 	}
 	
-	public void askFact() {
+	public int askFact() {
 		InetAddress address;
 		Socket socket;
 		try {
@@ -45,6 +45,7 @@ public class FactClient {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return this.fact;
 	}
 
 	public static void main(String[] args) {
