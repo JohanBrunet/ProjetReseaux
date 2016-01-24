@@ -11,17 +11,6 @@ import java.util.Scanner;
 import fib.FibClientThread;
 import fib.FibServer;
 
-// A FAIRE
-// Le client envoie une demande au serveur
-// Le serveur traite et renvoie au client
-// Le client dit au serveur qu'il a un résultat, le serveur l'ajoute et retourne au client suivant
-
-
-
-
-
-
-
 public class FibServer {
 	private Hashtable<Integer, Integer> cache;
 	private int port;

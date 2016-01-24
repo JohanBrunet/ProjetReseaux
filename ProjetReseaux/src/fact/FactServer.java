@@ -1,6 +1,7 @@
 package fact;
 
 import java.io.PrintStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Hashtable;
@@ -14,7 +15,7 @@ import java.util.Scanner;
  */
 public class FactServer {
 
-	private static Hashtable<Integer, Integer> cache;
+	public static Hashtable<Integer, Integer> cache;
 	private int port;
 
 	/**
@@ -29,6 +30,7 @@ public class FactServer {
 		this.port = port;
 		cache = new Hashtable<Integer, Integer>();
 		cache.put(0, 1);
+		cache.put(1, 1);
 	}
 
 	/**
@@ -45,8 +47,9 @@ public class FactServer {
 			ServerSocket sServer = new ServerSocket(this.port);
 			while (true) {
 				Socket socket = sServer.accept();
-				FactClientThread threadClient = new FactClientThread(socket);
-				threadClient.run();
+				FactClientThread threadClient = new FactClientThread(socket, this.port);
+				System.out.println("Un thread a été crée");
+				threadClient.start();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -60,6 +63,7 @@ public class FactServer {
 	 */
 	public static void main(String[] args) {
 		FactServer server = new FactServer (Integer.parseInt(args[0]));
+		System.out.println("Serveur en ligne");
 		server.computeFact();
 	}
 
@@ -120,28 +124,31 @@ class FactClientThread extends Thread {
 	 * @param port
 	 * 		Le numéro du port sur lequel on se connecte.
 	 */
-	public FactClientThread(Socket socket) {
+	public FactClientThread(Socket socket, int port) {
 		this.socket = socket;
+		this.port = port;
 	}
 
 	@SuppressWarnings("resource")
 	public void run() {
 		try {
-			Scanner scan= new Scanner(this.socket.getInputStream());
-			while (scan.hasNext()) {
-				this.valueToCompute = Integer.parseInt(scan.nextLine());
-				if (FactServer.isInCache(this.valueToCompute)) {
-					this.computedValue = FactServer.getInCache(this.valueToCompute);
-				}
-				else {
-					FactClient clientFactice = new FactClient(socket.getInetAddress().toString(), this.port, this.fact-1);
-					this.fact = clientFactice.askFact();
-				}
-				this.computedValue = this.computedValue * this.fact;
+			Scanner scan = new Scanner(this.socket.getInputStream());
+			this.valueToCompute = scan.nextInt();
+			System.out.println(this.valueToCompute + " est la valeur reçue");
+			if (FactServer.isInCache(this.valueToCompute)) {
+				this.computedValue = FactServer.getInCache(this.valueToCompute);
+				System.out.println("Est en cache");
 			}
+			else {
+				System.out.println("N'est pas en cache");
+				FactClient clientFactice = new FactClient(InetAddress.getLocalHost().getHostAddress(), this.port, this.valueToCompute-1);
+				this.computedValue = clientFactice.askFact();
+			}
+			this.computedValue = this.computedValue * this.valueToCompute;
+			System.out.println(this.computedValue +": valeur retournée par le client ");
 			FactServer.addToCache(this.valueToCompute, this.computedValue);
 			this.output = new PrintStream(socket.getOutputStream());
-			this.output.println(this.computedValue);
+			output.println(this.computedValue);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

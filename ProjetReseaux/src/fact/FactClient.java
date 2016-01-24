@@ -1,5 +1,5 @@
 package fact;
-
+import java.io.*;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetAddress;
@@ -31,16 +31,10 @@ public class FactClient {
 		try {
 			address = InetAddress.getByName(this.address);
 			socket = new Socket(address, this.port);
-			System.out.println("Entrez le nombre dont vous voulez la factorielle :\n");
-			Scanner sc = new Scanner(System.in);
-			if(sc.hasNext()) {
-				while(Integer.parseInt(sc.nextLine()) < 0){
-					System.out.println("Veuillez entrer une valeur positive ou nulle ! \n");
-				}
-				this.fact = Integer.parseInt(sc.nextLine());
-			}
 			PrintStream output = new PrintStream(socket.getOutputStream());
-			output.println(this.fact);
+			Scanner input = new Scanner(socket.getInputStream());
+			output.print(this.fact);
+			this.fact = input.nextInt();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -49,8 +43,16 @@ public class FactClient {
 
 	public static void main(String[] args) {
 		try {
-			FactClient client = new FactClient(args[0], Integer.parseInt(args[1]), -1);
-			client.askFact();
+			int input;
+			System.out.println("Entrez le nombre dont vous voulez la factorielle :\n");
+			Scanner sc = new Scanner(System.in);
+			input = sc.nextInt();
+			while(input < 0) {
+				System.out.println("Veuillez entrer une valeur positive ou nulle ! \n");
+				input = Integer.parseInt(sc.nextLine());
+			}
+			FactClient client = new FactClient(args[0], Integer.parseInt(args[1]), input);
+			System.out.println("Resultat final :" + client.askFact());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
