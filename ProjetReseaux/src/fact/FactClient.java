@@ -24,7 +24,6 @@ public class FactClient {
 		this.fact = fact;
 	}
 
-	@SuppressWarnings("resource")
 	public int askFact() {
 		InetAddress address;
 		Socket socket;
@@ -49,7 +48,7 @@ public class FactClient {
 			System.out.println("Entrez le nombre dont vous voulez la factorielle :\n");
 			Scanner sc = new Scanner(System.in);
 			input = sc.nextInt();
-			while(input < 0) {
+			while(input < 0 || input%1 != 0) {
 				System.out.println("Veuillez entrer une valeur positive ou nulle ! \n");
 				input = Integer.parseInt(sc.nextLine());
 			}

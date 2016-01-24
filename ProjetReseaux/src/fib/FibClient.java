@@ -19,34 +19,36 @@ public class FibClient {
 		this.fib = fib;
 	}
 	
-	public void askFact() {
+	public int askFib() {
 		InetAddress address;
 		Socket socket;
-
 		try {
 			address = InetAddress.getByName(this.address);
 			socket = new Socket(address, this.port);
-			System.out.println("Entrez le nombre dont vous voulez la factorielle :\n");
-			Scanner sc = new Scanner(System.in);
-			if(sc.hasNext()) {
-				do {
-					System.out.println("Le nombre doit etre un entier naturel ! \n");
-					this.fib = Integer.parseInt(sc.nextLine());
-				} while(this.fib < 0 || this.fib%1 != 0);
-			}
 			PrintStream output = new PrintStream(socket.getOutputStream());
-			while (true) {
-				output.println(this.fib);
-			}
+			Scanner input = new Scanner(socket.getInputStream());
+			output.println(this.fib);
+			this.fib = input.nextInt();
+			socket.close();
+			input.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return this.fib;
 	}
 	
 	public static void main(String argv[]) {
 		try {
-			FibClient client = new FibClient(argv[0], Integer.parseInt(argv[1]), -1);
-			client.askFact();
+			int input;
+			System.out.println("Entrez le nombre dont vous voulez le résultat de fibonacci :\n");
+			Scanner sc = new Scanner(System.in);
+			input = sc.nextInt();
+			while(input < 0 || input%1 != 0) {
+				System.out.println("Veuillez entrer une valeur positive ou nulle ! \n");
+				input = Integer.parseInt(sc.nextLine());
+			}
+			FibClient client = new FibClient(argv[0], Integer.parseInt(argv[1]), input);
+			System.out.println("Résultat : " + client.askFib());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

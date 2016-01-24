@@ -3,22 +3,33 @@ package fib;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Hashtable;
 import java.util.Scanner;
 
-import fib.FibClientThread;
-import fib.FibServer;
 
-public class FibServer {
-	private Hashtable<Integer, Integer> cache;
+public class FibServer extends Thread{
+	private static Hashtable<Integer, Integer> cache;
 	private int port;
 	private InputStream input;
 	private OutputStream output;
 	private int valueToCompute;
 	private int computedValue;
+	private int id;
 
+	/**
+	 * Le port du serveur 1
+	 */
+	public static int SERVER_1_PORT;
+	
+	/**
+	 * Le port du serveur 2
+	 */
+	public static int SERVER_2_PORT;
+	
 	/**
 	 * Constructeur du serveur.
 	 * Initialise le port de connexion et le cache.
@@ -27,10 +38,12 @@ public class FibServer {
 	 * @param port
 	 * 		Le port utilisé pour la connexion.
 	 */
-	public FibServer(int port) {
+	public FibServer(int id, int port) {
 		this.port = port;
+		this.id = id;
 		cache = new Hashtable<Integer, Integer>();
 		cache.put(1, 1);
+		cache.put(0, 0);
 	}
 
 	/**
@@ -42,27 +55,14 @@ public class FibServer {
 	 * </ul>
 	 */
 	@SuppressWarnings("resource")
-	public void computeFib() {
+	public void run() {
 		try {
 			ServerSocket sServer = new ServerSocket(this.port);
-			Socket socket = sServer.accept();
-			Scanner scan = new Scanner(socket.getInputStream());
-			while (scan.hasNext()) {
-				this.valueToCompute = Integer.parseInt(scan.nextLine());
-				if (isInCache(this.valueToCompute)) {
-					this.computedValue = this.computedValue + getInCache(this.valueToCompute);
-				}
-				else {
-					if(this.valueToCompute-1 == 0) {
-						this.computedValue++;
-					}
-					else {
-						FibClientThread clientFactice = new FibClientThread(socket, this.port, this.valueToCompute-1);
-						FibClientThread clientFactice2 = new FibClientThread(socket, this.port, this.valueToCompute-2);
-						clientFactice.run();
-						clientFactice2.run();
-					}
-				}
+			while (true) {
+				Socket socket = sServer.accept();
+				FibClientThread threadClient = new FibClientThread(socket, this.port);
+				System.out.println("Un thread a été crée");
+				threadClient.start();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -75,8 +75,20 @@ public class FibServer {
 	 * 		Les arguments de la ligne de commande.
 	 */
 	public static void main(String[] args) {
-		FibServer server = new FibServer (Integer.parseInt(args[0]));
-		server.computeFib();
+		System.out.println("Serveurs en ligne");
+		// Récupère les arguments de l'utilisateur
+		
+		try {
+			SERVER_1_PORT = Integer.parseInt(args[1]);
+			SERVER_2_PORT = Integer.parseInt(args[2]);
+		} catch (NumberFormatException e) {
+			System.out.println("Erreur dans les numéros de ports");
+			return;
+		}
+
+		// Créé et démarre les deux serveurs de calcul
+		new FibServer(1, SERVER_1_PORT).start();
+		new FibServer(2, SERVER_2_PORT).start();
 	}
 
 	/**
@@ -86,7 +98,7 @@ public class FibServer {
 	 * @param value
 	 * 		La valeur de la factorielle.
 	 */
-	synchronized private void addToCache(Integer key, Integer value) {
+	synchronized static void addToCache(Integer key, Integer value) {
 		cache.put(key, value);
 	}
 
@@ -96,7 +108,7 @@ public class FibServer {
 	 * 		Le nombre dont on veut la factorielle.
 	 * @return La factorielle du nombre passé en paramètre.
 	 */
-	synchronized private Integer getInCache(Integer key) {
+	synchronized static Integer getInCache(Integer key) {
 		return cache.get(key);
 	}
 
@@ -106,7 +118,7 @@ public class FibServer {
 	 * 		Le nombre à chercher dans le cache.
 	 * @return true si le nombre est présent dans le cache, false sinon.
 	 */
-	synchronized private boolean isInCache(Integer key) {
+	synchronized static boolean isInCache(Integer key) {
 		if (cache.containsKey(key)) {
 			return true;
 		}
@@ -119,7 +131,9 @@ class FibClientThread extends Thread {
 	private Socket socket;
 	private int port;
 	private int valueToCompute;
-
+	private int computedValue;
+	private int computedValue2;
+	private PrintStream output;
 	/**
 	 * Constructeur de la classe FibClientThread.
 	 * Permet d'initialiser le socket et le port servant à la connexion.
@@ -128,13 +142,37 @@ class FibClientThread extends Thread {
 	 * @param port
 	 * 		Le numéro du port sur lequel on se connecte.
 	 */
-	public FibClientThread(Socket socket, int port, int valueToCompute) {
-		this.valueToCompute = valueToCompute;
+	public FibClientThread(Socket socket, int port) {
 		this.socket = socket;
 		this.port = port;
 	}
 
+	@SuppressWarnings("resource")
 	public void run() {
-		new FibClient(this.socket.getInetAddress().toString(), this.port, this.valueToCompute);
+		try {
+			Scanner scan = new Scanner(this.socket.getInputStream());
+			this.valueToCompute = scan.nextInt();
+			System.out.println(this.valueToCompute + " est la valeur reçue");
+			this.output = new PrintStream(socket.getOutputStream());
+
+			if (FibServer.isInCache(this.valueToCompute)) {
+				this.computedValue = FibServer.getInCache(this.valueToCompute);
+				System.out.println("Est en cache");
+				output.println(this.computedValue);
+			}
+			else {
+				System.out.println("N'est pas en cache");
+				FibClient clientFactice = new FibClient(InetAddress.getLocalHost().getHostAddress(), FibServer.SERVER_1_PORT, this.valueToCompute-1);
+				this.computedValue = clientFactice.askFib();
+				FibClient clientFactice2 = new FibClient(InetAddress.getLocalHost().getHostAddress(), FibServer.SERVER_2_PORT, this.valueToCompute-2);
+				this.computedValue2 = clientFactice2.askFib();
+				this.computedValue = this.computedValue + this.computedValue2;
+				System.out.println(this.computedValue + ": addition des valeurs retournées par les clients ");
+				FibServer.addToCache(this.valueToCompute, this.computedValue);
+				output.println(this.computedValue);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
