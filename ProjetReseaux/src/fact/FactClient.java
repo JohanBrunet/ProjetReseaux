@@ -33,8 +33,10 @@ public class FactClient {
 			socket = new Socket(address, this.port);
 			PrintStream output = new PrintStream(socket.getOutputStream());
 			Scanner input = new Scanner(socket.getInputStream());
-			output.print(this.fact);
+			output.println(this.fact);
 			this.fact = input.nextInt();
+			socket.close();
+			input.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
